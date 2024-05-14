@@ -3,12 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TaskList.Views.MainItemPage"
              xmlns:viewModel="clr-namespace:TaskList.ViewModel"
+             xmlns:services="clr-namespace:TaskList.Services"
+             xmlns:model="clr-namespace:TaskList.Model"
              Title="MainItemPage">
+
+    <ContentPage.Resources>
+        <services:BoolConvert x:Key="BoolConvert"/>
+    </ContentPage.Resources>
 
     <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -18,16 +24,81 @@
         </Grid.ColumnDefinitions>
 
         <!--<Label Grid.Row="0" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Grid.Column="0" Text="Add new task!" />-->
-        <Entry Placeholder="Novi task" Grid.Column="0" Text="{Binding TextEntry, Mode=TwoWay}"/>
-        <Picker Grid.Column="1" SelectedIndex="{Binding Urgency}" />
-        <Button Text="Add new" Grid.Column="2"  Command="{Binding SaveTask}"/>
-        <ListView Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Items}"> 
+        <Entry Placeholder="Novi task" Grid.Column="0" Text="{Binding TextEntry, Mode=TwoWay}" ReturnCommand="{Binding SaveTaskCommand}"/>
+        
+        <Picker Grid.Column="1" SelectedItem="{Binding Urgency}">
+            <Picker.ItemsSource>
+                <x:Array Type="{x:Type x:String}">
+                    <x:String>Not Today</x:String>
+                    <x:String>Low</x:String>
+                    <x:String>Medium</x:String>
+                    <x:String>High</x:String>
+                    <x:String>Urgent</x:String>
+
+                </x:Array>
+            </Picker.ItemsSource>
+
+        </Picker>
+        
+        
+        <Button Text="Add new" Grid.Column="2"  Command="{Binding SaveTaskCommand}"/>
+        <ListView Grid.Row="1" 
+                  Grid.ColumnSpan="2" 
+                  ItemsSource="{Binding Items}" 
+                  VerticalOptions="FillAndExpand"
+                  SeparatorVisibility="Default"
+                  >
+
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextCell Text="{Binding [0].Name}"/>
+                    <!--x:DataType="model:TaskItem"-->
+                    <ViewCell>
+                        <Grid BackgroundColor="AliceBlue"
+                              RowDefinitions="30" Padding="5,5,0,0"
+                              IsVisible="{Binding IsCompleted, Converter={services:BoolConvert}}"
+                              >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                                    Text="✔️"
+                                    TextColor="DarkGrey"
+                                    BackgroundColor="Transparent"
+                                    IsVisible="{Binding IsCompleted, Converter={services:BoolConvert}}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ListView}}, Path=BindingContext.ToggleTaskCompletedCommand}"
+                                    CommandParameter="{Binding .}"/>
+
+                            <Label Grid.Column="1" Text="{Binding Name}"/>
+                            <Label Grid.Column="2" Text="{Binding Description}"/>
+                            <Label Grid.Column="3" Text="{Binding Urgency}"/>
+                            <Label Grid.Column="3" Text="{Binding DateTime}"/>
+                        </Grid>
+                    </ViewCell>
                 </DataTemplate>
 
             </ListView.ItemTemplate>
+            <ListView.Header>
+
+                <Grid BackgroundColor="AliceBlue" Padding="5,5,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Done"/>
+                    <Label Grid.Column="1" Text="Name"/>
+                    <Label Grid.Column="2" Text="Description"/>
+                    <Label Grid.Column="3" Text="Urgency"/>
+                </Grid>
+
+            </ListView.Header>
         </ListView>
     </Grid>
 </ContentPage>

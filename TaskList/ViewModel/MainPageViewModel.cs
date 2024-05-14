@@ -11,7 +11,24 @@ namespace TaskList.ViewModel
     public class MainPageViewModel : INotifyPropertyChanged
     {
         Conn Db;
-        public ICommand SaveTask { get; set; }
+        public ICommand SaveTaskCommand { get; set; }
+
+        public ICommand ToggleTaskCompletedCommand { get; set; }
+
+
+        private bool isChecked;
+        public bool IsChecked
+        {
+            get { return isChecked; }
+            set
+            {
+                if (isChecked != value)
+                {
+                    isChecked = value;
+                    NotifyPropertyChanged(nameof(IsChecked));
+                }
+            }
+        }
 
         private string textEntry;
         public string TextEntry
@@ -26,8 +43,8 @@ namespace TaskList.ViewModel
                 }
             }
         }
-        private int urgency;
-        public int Urgency
+        private string urgency;
+        public string Urgency
         {
             get { return urgency; }
             set
@@ -39,10 +56,10 @@ namespace TaskList.ViewModel
                 }
             }
         }
+        
 
-
-        private ObservableCollection<List<TaskItem>> items;
-        public ObservableCollection<List<TaskItem>> Items
+        private ObservableCollection<TaskItem> items;
+        public ObservableCollection<TaskItem> Items
         {
             get { return items; }
             set
@@ -58,52 +75,92 @@ namespace TaskList.ViewModel
         {
             Debug.WriteLine("View model succesfully initialized");
             //SaveTask = new Command(saveItem);
-            SaveTask = new Command(async () => await saveItem());
-
+            SaveTaskCommand = new Command(async () => await saveItem());
+            ToggleTaskCompletedCommand = new Command<TaskItem>(ToggleTaskCompleted);
 
             Db = conn;
-            Items = new ObservableCollection<List<TaskItem>>();
+            Items = new ObservableCollection<TaskItem>();
             GetItems();
         }
 
+
+
         public async void GetItems()
         {
-            items.Clear();
-            await Db.GetItemsAsync();
-            foreach(List<TaskItem> item in Items)
+            try
             {
-                Debug.WriteLine(
+                Items.Clear();
+                var dbItems = await Db.GetItemsAsync();
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Items.Clear();
+                    foreach (var dbItem in dbItems)
+                        Items.Add(dbItem);
+
+                });
+
+
+                foreach (TaskItem item in Items)
+                {
+                    Debug.WriteLine(item.Name);
+                }
+
             }
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine(ex.Message);
+            }
+        }
+        private async void ToggleTaskCompleted(TaskItem taskItem)
+        {
+            taskItem.IsCompleted = !taskItem.IsCompleted;
+            IsChecked = taskItem.IsCompleted;
+            await Db.SaveItemAsync(taskItem);
+            Debug.WriteLine("Changed task status to " + taskItem.IsCompleted + " Is the icChecked true? " + isChecked);
+            // Optionally, you can remove the item from the list if you don't want it to be visible
+            // YourItems.Remove(taskItem);
         }
 
         public async Task saveItem()
         {
-            if (!string.IsNullOrEmpty(TextEntry))
+            try
             {
-                var newItemList = new List<TaskItem>()
+                if (!string.IsNullOrEmpty(TextEntry))
                 {
-                    new TaskItem()
+
+                    var taskItem = new TaskItem()
                     {
                         Name = TextEntry,
                         Description = null,
                         DateTime = DateTime.UtcNow,
-                        urgency = Urgency,
+                        Urgency = Urgency,
                         IsCompleted = false
+                    };
+
+                    Items.Add(taskItem);
+                    await Db.SaveItemAsync(taskItem);
+                    foreach (TaskItem item in items)
+                    {
+                        Debug.WriteLine(item.Name + ": " + item.IsCompleted);
                     }
-                   
-                };
-
-
-                Items.Add(newItemList);
-                foreach(TaskItem item in newItemList)
-                {
-                   await Db.SaveItemAsync(item);
-                   Debug.WriteLine("Item name is " + item.Name);
+                    Debug.WriteLine("Number of items in items is " + Items.Count);
+                    //GetItems();
+                    TextEntry = "";
                 }
-                Debug.WriteLine("Number of items in items is " + Items.Count);
-                GetItems();
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Debug.Write(ex.Message);
             }
         }
+
+
+ 
 
         public event PropertyChangedEventHandler PropertyChanged;
 
