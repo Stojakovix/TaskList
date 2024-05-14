@@ -5,8 +5,9 @@
              xmlns:viewModel="clr-namespace:TaskList.ViewModel"
              xmlns:services="clr-namespace:TaskList.Services"
              xmlns:model="clr-namespace:TaskList.Model"
-             Title="MainItemPage">
-
+             Title="MainItemPage"
+             >
+    
     <ContentPage.Resources>
         <services:BoolConvert x:Key="BoolConvert"/>
     </ContentPage.Resources>
@@ -47,6 +48,7 @@
                   ItemsSource="{Binding Items}" 
                   VerticalOptions="FillAndExpand"
                   SeparatorVisibility="Default"
+                  
                   >
 
             <ListView.ItemTemplate>
@@ -54,7 +56,7 @@
                     <!--x:DataType="model:TaskItem"-->
                     <ViewCell>
                         <Grid BackgroundColor="AliceBlue"
-                              RowDefinitions="30" Padding="5,5,0,0"
+                              RowDefinitions="40" Padding="5,5,0,0"
                               IsVisible="{Binding IsCompleted, Converter={services:BoolConvert}}"
                               >
                             <Grid.ColumnDefinitions>
@@ -76,7 +78,7 @@
                             <Label Grid.Column="1" Text="{Binding Name}"/>
                             <Label Grid.Column="2" Text="{Binding Description}"/>
                             <Label Grid.Column="3" Text="{Binding Urgency}"/>
-                            <Label Grid.Column="3" Text="{Binding DateTime}"/>
+                            <Label Grid.Column="4" Text="{Binding DateTime}"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
@@ -90,15 +92,22 @@
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="200"/>
                     </Grid.ColumnDefinitions>
 
                     <Label Grid.Column="0" Text="Done"/>
                     <Label Grid.Column="1" Text="Name"/>
                     <Label Grid.Column="2" Text="Description"/>
                     <Label Grid.Column="3" Text="Urgency"/>
+                    <Label Grid.Column="4" Text="Date"/>
+                    <SearchBar Grid.Column="5" Placeholder="Search items..." SearchCommand="{Binding SearchCommand}" Text="{Binding SearchText}"/>
+
                 </Grid>
 
             </ListView.Header>
         </ListView>
+        
+        
     </Grid>
 </ContentPage>

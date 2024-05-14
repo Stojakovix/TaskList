@@ -15,6 +15,22 @@ namespace TaskList.ViewModel
 
         public ICommand ToggleTaskCompletedCommand { get; set; }
 
+        public ICommand SearchCommand { get; set; }
+
+
+        private string searchText;
+        public string SearchText
+        {
+            get { return searchText; }
+            set
+            {
+                if (searchText != value)
+                {
+                    searchText = value;
+                    NotifyPropertyChanged(nameof(SearchText));
+                }
+            }
+        }
 
         private bool isChecked;
         public bool IsChecked
@@ -77,6 +93,7 @@ namespace TaskList.ViewModel
             //SaveTask = new Command(saveItem);
             SaveTaskCommand = new Command(async () => await saveItem());
             ToggleTaskCompletedCommand = new Command<TaskItem>(ToggleTaskCompleted);
+            SearchCommand = new Command(GenerateSearchResults);
 
             Db = conn;
             Items = new ObservableCollection<TaskItem>();
@@ -84,6 +101,20 @@ namespace TaskList.ViewModel
         }
 
 
+        public async void GenerateSearchResults()
+        {
+            string searchTerm = SearchText;
+            string escaped_search_term = searchTerm.Replace("/", "\\/");
+            var dbItems = await Db.FindItems(escaped_search_term);
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Items.Clear();
+                foreach (var dbItem in dbItems)
+                    Items.Add(dbItem);
+
+            });
+
+        }
 
         public async void GetItems()
         {

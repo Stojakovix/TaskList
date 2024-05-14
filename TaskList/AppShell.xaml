@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:TaskList"
     xmlns:views="clr-namespace:TaskList.Views"
     Shell.FlyoutBehavior="Flyout"
-    Title="TaskList">
+    Shell.NavBarIsVisible="False">
 
 
 

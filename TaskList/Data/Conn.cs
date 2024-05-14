@@ -41,9 +41,15 @@ namespace TaskList.Data
             await Init();
             return await db.Table<TaskItem>().Where(t => t.IsCompleted).ToListAsync();
         }
+        public async Task<List<TaskItem>>GetDone()
+        {
+            await Init();
+            return await db.Table<TaskItem>().Where(t =>t.IsCompleted!).ToListAsync();
+        }
         public async Task<TaskItem> GetItemAsync(int id)
         {
             await Init();
+            
             return await db.Table<TaskItem>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
         public async Task<int> SaveItemAsync(TaskItem item)
@@ -58,6 +64,14 @@ namespace TaskList.Data
         {
             await Init();
             return await db.DeleteAsync(item);
+        }
+
+        public async Task<List<TaskItem>> FindItems(string query)
+        {
+            await Init();
+            List<TaskItem> foundItems = await db.QueryAsync<TaskItem>(
+                "SELECT * FROM TaskItem WHERE Name LIKE '%' || ? || '%' OR Description LIKE '%' || ? || '%' OR DateTime LIKE '%' || ? || '%'", query, query, query);
+            return foundItems;
         }
     }
 }
