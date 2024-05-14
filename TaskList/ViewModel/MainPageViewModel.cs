@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using TaskList.Model;
 using TaskList.Data;
 using System.Diagnostics;
+using System.Text;
 
 namespace TaskList.ViewModel
 {
@@ -17,6 +18,19 @@ namespace TaskList.ViewModel
 
         public ICommand SearchCommand { get; set; }
 
+        private string buttonText;
+        public string ButtonText
+        {
+            get { return buttonText; }
+            set
+            {
+                if (buttonText != value)
+                {
+                    buttonText = value;
+                    NotifyPropertyChanged(nameof(buttonText));
+                }
+            }
+        }
 
         private string searchText;
         public string SearchText
@@ -72,7 +86,7 @@ namespace TaskList.ViewModel
                 }
             }
         }
-        
+
 
         private ObservableCollection<TaskItem> items;
         public ObservableCollection<TaskItem> Items
@@ -91,12 +105,12 @@ namespace TaskList.ViewModel
         {
             Debug.WriteLine("View model succesfully initialized");
             //SaveTask = new Command(saveItem);
-            SaveTaskCommand = new Command(async () => await saveItem());
+            SaveTaskCommand = new Command(async () => await SaveItem());
             ToggleTaskCompletedCommand = new Command<TaskItem>(ToggleTaskCompleted);
             SearchCommand = new Command(GenerateSearchResults);
 
             Db = conn;
-            Items = new ObservableCollection<TaskItem>();
+            Items = [];
             GetItems();
         }
 
@@ -126,8 +140,17 @@ namespace TaskList.ViewModel
                 {
                     Items.Clear();
                     foreach (var dbItem in dbItems)
+                    {
+                        if(dbItem.IsCompleted)
+                        {
+                            ButtonText = "✔️";
+                        }
+                        else
+                        {
+                            ButtonText = "⏳";
+                        }
                         Items.Add(dbItem);
-
+                    }
                 });
 
 
@@ -148,12 +171,20 @@ namespace TaskList.ViewModel
             taskItem.IsCompleted = !taskItem.IsCompleted;
             IsChecked = taskItem.IsCompleted;
             await Db.SaveItemAsync(taskItem);
+            if (taskItem.IsCompleted)
+            {
+                ButtonText = "✔️";
+            }
+            else if(taskItem.IsCompleted!) 
+            {
+                ButtonText = "⏳";
+            }
             Debug.WriteLine("Changed task status to " + taskItem.IsCompleted + " Is the icChecked true? " + isChecked);
             // Optionally, you can remove the item from the list if you don't want it to be visible
             // YourItems.Remove(taskItem);
         }
 
-        public async Task saveItem()
+        public async Task SaveItem()
         {
             try
             {
@@ -166,7 +197,8 @@ namespace TaskList.ViewModel
                         Description = null,
                         DateTime = DateTime.UtcNow,
                         Urgency = Urgency,
-                        IsCompleted = false
+                        IsCompleted = false,
+                        ButtonText = ButtonText, 
                     };
 
                     Items.Add(taskItem);
@@ -179,9 +211,7 @@ namespace TaskList.ViewModel
                     //GetItems();
                     TextEntry = "";
                 }
-                else
-                {
-                }
+
             }
             catch (Exception ex)
             {
@@ -191,7 +221,7 @@ namespace TaskList.ViewModel
         }
 
 
- 
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

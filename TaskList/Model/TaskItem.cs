@@ -82,6 +82,20 @@ namespace TaskList.Model
             }
         }
 
+        private string? buttonText;
+        public string? ButtonText
+        {
+            get { return buttonText; }
+            set
+            {
+                if (buttonText != value)
+                {
+                    buttonText = value;
+                    NotifyPropertyChanged(nameof(ButtonText));
+                }
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

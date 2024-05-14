@@ -71,7 +71,9 @@ namespace TaskList.Data
             await Init();
             List<TaskItem> foundItems = await db.QueryAsync<TaskItem>(
                 "SELECT * FROM TaskItem WHERE Name LIKE '%' || ? || '%' OR Description LIKE '%' || ? || '%' OR DateTime LIKE '%' || ? || '%'", query, query, query);
+            Debug.WriteLine(foundItems.Count);
             return foundItems;
+            // Zanimljiv potencijalni problem, kako prikazati sve koji imaju 1 na  "DONE" taskovi, a ne promjeniti im visibility i/ili ga vratiti nazad na kraju querija, a da bude u istom ListViewu
         }
     }
 }

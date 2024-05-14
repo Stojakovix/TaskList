@@ -27,7 +27,7 @@
         <!--<Label Grid.Row="0" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Grid.Column="0" Text="Add new task!" />-->
         <Entry Placeholder="Novi task" Grid.Column="0" Text="{Binding TextEntry, Mode=TwoWay}" ReturnCommand="{Binding SaveTaskCommand}"/>
         
-        <Picker Grid.Column="1" SelectedItem="{Binding Urgency}">
+        <Picker Grid.Column="1" SelectedItem="{Binding Urgency}" >
             <Picker.ItemsSource>
                 <x:Array Type="{x:Type x:String}">
                     <x:String>Not Today</x:String>
@@ -38,6 +38,7 @@
 
                 </x:Array>
             </Picker.ItemsSource>
+            
 
         </Picker>
         
@@ -68,10 +69,9 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0"
-                                    Text="✔️"
+                                    Text="{Binding ButtonText}"
                                     TextColor="DarkGrey"
                                     BackgroundColor="Transparent"
-                                    IsVisible="{Binding IsCompleted, Converter={services:BoolConvert}}"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ListView}}, Path=BindingContext.ToggleTaskCompletedCommand}"
                                     CommandParameter="{Binding .}"/>
 

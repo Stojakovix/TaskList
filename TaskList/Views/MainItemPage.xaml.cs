@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace TaskList.Views;
 
 
-public partial class MainItemPage : ContentPage, INotifyPropertyChanged
+public partial class MainItemPage : ContentPage
 {
 	MainPageViewModel viewModel;
 	public MainItemPage(MainPageViewModel _viewModel)
@@ -27,10 +27,4 @@ public partial class MainItemPage : ContentPage, INotifyPropertyChanged
 
 
 
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }
