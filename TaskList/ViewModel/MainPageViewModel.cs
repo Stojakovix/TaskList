@@ -27,7 +27,7 @@ namespace TaskList.ViewModel
                 if (buttonText != value)
                 {
                     buttonText = value;
-                    NotifyPropertyChanged(nameof(buttonText));
+                    NotifyPropertyChanged(nameof(ButtonText));
                 }
             }
         }
@@ -134,20 +134,21 @@ namespace TaskList.ViewModel
         {
             try
             {
-                Items.Clear();
+                
                 var dbItems = await Db.GetItemsAsync();
+                dbItems.Reverse();
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     Items.Clear();
                     foreach (var dbItem in dbItems)
                     {
-                        if(dbItem.IsCompleted)
+                        if (dbItem.IsCompleted)
                         {
-                            ButtonText = "✔️";
+                            dbItem.ButtonText = "✔️";
                         }
                         else
                         {
-                            ButtonText = "⏳";
+                            dbItem.ButtonText = "⏳";
                         }
                         Items.Add(dbItem);
                     }
@@ -156,7 +157,7 @@ namespace TaskList.ViewModel
 
                 foreach (TaskItem item in Items)
                 {
-                    Debug.WriteLine(item.Name);
+                    Debug.WriteLine( item.Name + " " + item.ButtonText);
                 }
 
             }
@@ -169,25 +170,25 @@ namespace TaskList.ViewModel
         private async void ToggleTaskCompleted(TaskItem taskItem)
         {
             taskItem.IsCompleted = !taskItem.IsCompleted;
-            IsChecked = taskItem.IsCompleted;
             await Db.SaveItemAsync(taskItem);
+
             if (taskItem.IsCompleted)
             {
-                ButtonText = "✔️";
+                taskItem.ButtonText = "✔️";
             }
-            else if(taskItem.IsCompleted!) 
+            else
             {
-                ButtonText = "⏳";
+                taskItem.ButtonText = "⏳";
             }
-            Debug.WriteLine("Changed task status to " + taskItem.IsCompleted + " Is the icChecked true? " + isChecked);
-            // Optionally, you can remove the item from the list if you don't want it to be visible
-            // YourItems.Remove(taskItem);
+            Debug.WriteLine("Changed task status to " + taskItem.IsCompleted + " Is the isChecked true? " + isChecked);
+
         }
 
         public async Task SaveItem()
         {
             try
             {
+                // stavi picker is empty check
                 if (!string.IsNullOrEmpty(TextEntry))
                 {
 
@@ -198,10 +199,10 @@ namespace TaskList.ViewModel
                         DateTime = DateTime.UtcNow,
                         Urgency = Urgency,
                         IsCompleted = false,
-                        ButtonText = ButtonText, 
+                        ButtonText = "⏳", 
                     };
 
-                    Items.Add(taskItem);
+                    Items.Insert(0, taskItem);
                     await Db.SaveItemAsync(taskItem);
                     foreach (TaskItem item in items)
                     {

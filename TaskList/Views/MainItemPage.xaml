@@ -7,7 +7,7 @@
              xmlns:model="clr-namespace:TaskList.Model"
              Title="MainItemPage"
              >
-    
+
     <ContentPage.Resources>
         <services:BoolConvert x:Key="BoolConvert"/>
     </ContentPage.Resources>
@@ -24,26 +24,32 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!--<Label Grid.Row="0" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Grid.Column="0" Text="Add new task!" />-->
-        <Entry Placeholder="Novi task" Grid.Column="0" Text="{Binding TextEntry, Mode=TwoWay}" ReturnCommand="{Binding SaveTaskCommand}"/>
-        
-        <Picker Grid.Column="1" SelectedItem="{Binding Urgency}" >
-            <Picker.ItemsSource>
-                <x:Array Type="{x:Type x:String}">
-                    <x:String>Not Today</x:String>
-                    <x:String>Low</x:String>
-                    <x:String>Medium</x:String>
-                    <x:String>High</x:String>
-                    <x:String>Urgent</x:String>
-
-                </x:Array>
-            </Picker.ItemsSource>
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
             
+            <Entry Placeholder="Novi task" Grid.Column="0" Text="{Binding TextEntry, Mode=TwoWay}" ReturnCommand="{Binding SaveTaskCommand}"/>
 
-        </Picker>
-        
-        
-        <Button Text="Add new" Grid.Column="2"  Command="{Binding SaveTaskCommand}"/>
+            <Picker Grid.Column="1" SelectedItem="{Binding Urgency}" >
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Not Today</x:String>
+                        <x:String>Low</x:String>
+                        <x:String>Medium</x:String>
+                        <x:String>High</x:String>
+                        <x:String>Urgent</x:String>
+
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+            <Button Text="Add new" Grid.Column="2"  Command="{Binding SaveTaskCommand}"/>
+
+
+        </Grid>
+
         <ListView Grid.Row="1" 
                   Grid.ColumnSpan="2" 
                   ItemsSource="{Binding Items}" 
@@ -57,8 +63,9 @@
                     <!--x:DataType="model:TaskItem"-->
                     <ViewCell>
                         <Grid BackgroundColor="AliceBlue"
-                              RowDefinitions="40" Padding="5,5,0,0"
-                              IsVisible="{Binding IsCompleted, Converter={services:BoolConvert}}"
+                              RowDefinitions="*" Padding="5,5,0,0"
+                              
+
                               >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"/>
@@ -67,9 +74,10 @@
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
+                             
 
                             <Button Grid.Column="0"
-                                    Text="{Binding ButtonText}"
+                                    Text="{Binding ButtonText , Mode=TwoWay}"
                                     TextColor="DarkGrey"
                                     BackgroundColor="Transparent"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ListView}}, Path=BindingContext.ToggleTaskCompletedCommand}"
@@ -107,7 +115,7 @@
 
             </ListView.Header>
         </ListView>
-        
-        
+
+
     </Grid>
 </ContentPage>
