@@ -13,10 +13,11 @@ namespace TaskList.ViewModel
     {
         Conn Db;
         public ICommand SaveTaskCommand { get; set; }
-
         public ICommand ToggleTaskCompletedCommand { get; set; }
-
         public ICommand SearchCommand { get; set; }
+        public ICommand DeleteCommand { get; set; }
+        public ICommand OpenNoteCommand { get; set; }
+        public ICommand SaveNoteCommand { get; set; }
 
         private string buttonText;
         public string ButtonText
@@ -87,6 +88,35 @@ namespace TaskList.ViewModel
             }
         }
 
+        private string titleText;
+        public string TitleText
+        {
+            get { return titleText; }
+            set
+            {
+                if (titleText != value)
+                {
+                    titleText = value;
+                    NotifyPropertyChanged(nameof(TitleText));
+                }
+            }
+        }
+
+        private string nText;
+        public string NText
+        {
+            get { return nText; }
+            set
+            {
+                if (nText != value)
+                {
+                    nText = value;
+                    NotifyPropertyChanged(nameof(NText));
+                }
+            }
+        }
+
+
 
         private ObservableCollection<TaskItem> items;
         public ObservableCollection<TaskItem> Items
@@ -101,6 +131,19 @@ namespace TaskList.ViewModel
                 }
             }
         }
+        private ObservableCollection<NoteItem> noteItems;
+        public ObservableCollection<NoteItem> NoteItems
+        {
+            get { return noteItems; }
+            set
+            {
+                if (noteItems != value)
+                {
+                    noteItems = value;
+                    NotifyPropertyChanged(nameof(NoteItems));
+                }
+            }
+        }
         public MainPageViewModel(Conn conn)
         {
             Debug.WriteLine("View model succesfully initialized");
@@ -108,10 +151,18 @@ namespace TaskList.ViewModel
             SaveTaskCommand = new Command(async () => await SaveItem());
             ToggleTaskCompletedCommand = new Command<TaskItem>(ToggleTaskCompleted);
             SearchCommand = new Command(GenerateSearchResults);
+            DeleteCommand = new Command<TaskItem>(DeleteTask);
+            OpenNoteCommand = new Command(async () => await OpenNote());
+            SaveNoteCommand = new Command(async () => await SaveNote());
 
+            var datetime = DateTime.Now;
+            Debug.WriteLine(datetime);
+            Urgency = "Low";
             Db = conn;
             Items = [];
+            NoteItems = [];
             GetItems();
+            GetNotes();
         }
 
 
@@ -134,7 +185,7 @@ namespace TaskList.ViewModel
         {
             try
             {
-                
+
                 var dbItems = await Db.GetItemsAsync();
                 dbItems.Reverse();
                 MainThread.BeginInvokeOnMainThread(() =>
@@ -157,7 +208,7 @@ namespace TaskList.ViewModel
 
                 foreach (TaskItem item in Items)
                 {
-                    Debug.WriteLine( item.Name + " " + item.ButtonText);
+                    Debug.WriteLine(item.Name + " " + item.ButtonText);
                 }
 
             }
@@ -184,6 +235,14 @@ namespace TaskList.ViewModel
 
         }
 
+        private async void DeleteTask(TaskItem taskItem)
+        {
+            Debug.WriteLine(taskItem.Name);
+            await Db.DeleteItemAsync(taskItem);
+            Items.Remove(taskItem);
+        }
+
+
         public async Task SaveItem()
         {
             try
@@ -191,7 +250,10 @@ namespace TaskList.ViewModel
                 // stavi picker is empty check
                 if (!string.IsNullOrEmpty(TextEntry))
                 {
-
+                    if (Urgency == null)
+                    {
+                        Urgency = "Low";
+                    }
                     var taskItem = new TaskItem()
                     {
                         Name = TextEntry,
@@ -199,7 +261,7 @@ namespace TaskList.ViewModel
                         DateTime = DateTime.UtcNow,
                         Urgency = Urgency,
                         IsCompleted = false,
-                        ButtonText = "⏳", 
+                        ButtonText = "⏳",
                     };
 
                     Items.Insert(0, taskItem);
@@ -221,6 +283,87 @@ namespace TaskList.ViewModel
             }
         }
 
+        public async void GetNotes()
+        {
+            try
+            {
+                var dbItems = await Db.GetNoteItemsAsync();
+                dbItems.Reverse();
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if(dbItems == null)
+                    {
+                        
+                    }
+                    foreach (var dbItem in dbItems)
+                    {
+                        NoteItems.Clear();
+                        NoteItems.Add(dbItem);
+                        Debug.WriteLine("DbItems title is " + dbItem.Title);
+                    }
+                    Debug.WriteLine("Number of items in items is " + NoteItems.Count);
+
+                });
+            }
+            catch (Exception ex)
+            {
+
+                Debug.WriteLine(ex.Message);
+            }
+        }
+        public async Task OpenNote()
+        {
+            try
+            {
+                Debug.WriteLine("Clicked openNote");
+                var noteItem = new NoteItem()
+                {
+                    Title = string.Empty,
+                    NoteText = string.Empty,
+                    IsExtended = true,
+                    DateCreated = DateTime.Now,
+                };
+                NoteItems.Insert(0, noteItem);
+                await Db.SaveNoteItemAsync(noteItem);
+                Debug.WriteLine(noteItem.NoteText+" " + noteItem.Title+ " " + noteItem.IsExtended+ " " + noteItem.DateCreated);
+            }
+            catch (Exception ex)
+            {
+                Debug.Write(ex.Message);
+            }
+        }
+
+        public async Task SaveNote()
+        {
+            try
+            {
+                // stavi picker is empty check
+                if (!string.IsNullOrEmpty(TitleText))
+                {
+
+                    var noteItem = new NoteItem()
+                    {
+                        Title = TitleText,
+                        NoteText = nText,
+                        IsExtended = false,
+                        DateCreated = DateTime.Now,
+                    };
+
+                    NoteItems.Insert(0, noteItem);
+
+                    await Db.SaveNoteItemAsync(noteItem);
+
+                    Debug.WriteLine("Number of items in items is " + NoteItems.Count);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                Debug.Write(ex.Message);
+            }
+        }
 
 
 

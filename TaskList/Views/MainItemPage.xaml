@@ -11,6 +11,9 @@
     <ContentPage.Resources>
         <services:BoolConvert x:Key="BoolConvert"/>
     </ContentPage.Resources>
+    <ContentPage.BindingContext>
+        <viewModel:MainPageViewModel />
+    </ContentPage.BindingContext>
 
     <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
         <Grid.RowDefinitions>
@@ -30,7 +33,7 @@
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
-            
+
             <Entry Placeholder="Novi task" Grid.Column="0" Text="{Binding TextEntry, Mode=TwoWay}" ReturnCommand="{Binding SaveTaskCommand}"/>
 
             <Picker Grid.Column="1" SelectedItem="{Binding Urgency}" >
@@ -54,18 +57,13 @@
                   Grid.ColumnSpan="2" 
                   ItemsSource="{Binding Items}" 
                   VerticalOptions="FillAndExpand"
-                  SeparatorVisibility="Default"
-                  
+                  SeparatorVisibility="Default"                 
                   >
-
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <!--x:DataType="model:TaskItem"-->
+            <ListView.ItemTemplate >
+                <DataTemplate x:DataType="model:TaskItem">
                     <ViewCell>
                         <Grid BackgroundColor="AliceBlue"
                               RowDefinitions="*" Padding="5,5,0,0"
-                              
-
                               >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"/>
@@ -73,10 +71,12 @@
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="50"/>
                             </Grid.ColumnDefinitions>
-                             
+
 
                             <Button Grid.Column="0"
+                                    
                                     Text="{Binding ButtonText , Mode=TwoWay}"
                                     TextColor="DarkGrey"
                                     BackgroundColor="Transparent"
@@ -87,6 +87,14 @@
                             <Label Grid.Column="2" Text="{Binding Description}"/>
                             <Label Grid.Column="3" Text="{Binding Urgency}"/>
                             <Label Grid.Column="4" Text="{Binding DateTime}"/>
+                            <Button Grid.Column="5"
+                                    Text="❌"
+                                    TextColor="Red"
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ListView}}, Path=BindingContext.DeleteCommand}"
+                                    CommandParameter="{Binding .}"
+                                    />
+
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
@@ -115,7 +123,31 @@
 
             </ListView.Header>
         </ListView>
+        <Grid Padding="10,0,0,0" Grid.Column="2" Grid.Row="0" >
+            <Button Text="Add new Note" Command="{Binding OpenNoteCommand}"/>
+        </Grid>
 
+
+        <CollectionView Grid.Column="2"
+                        ItemsSource="{Binding NoteItems}"
+                        VerticalOptions="FillAndExpand"
+                        BackgroundColor="LightYellow"
+                        Grid.Row="1"
+                        >
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Grid BackgroundColor="LightYellow"
+                              RowDefinitions="*"
+                              ColumnDefinitions="*"
+                              Padding="5,5,0,0">
+                            <Entry Text="{Binding Title}"   Grid.Row="0" Grid.Column="0"/>
+                            <Editor Text="{Binding NoteText}" Grid.Row="1"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
     </Grid>
 </ContentPage>
