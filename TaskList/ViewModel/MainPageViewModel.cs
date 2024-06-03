@@ -11,7 +11,7 @@ namespace TaskList.ViewModel
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
-        Conn Db;
+        readonly Conn Db;
         public ICommand SaveTaskCommand { get; set; }
         public ICommand ToggleTaskCompletedCommand { get; set; }
         public ICommand SearchCommand { get; set; }
@@ -250,10 +250,8 @@ namespace TaskList.ViewModel
                 // stavi picker is empty check
                 if (!string.IsNullOrEmpty(TextEntry))
                 {
-                    if (Urgency == null)
-                    {
-                        Urgency = "Low";
-                    }
+                    Urgency ??= "Low";
+
                     var taskItem = new TaskItem()
                     {
                         Name = TextEntry,

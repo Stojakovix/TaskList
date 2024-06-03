@@ -9,19 +9,19 @@ namespace TaskList.Views;
 
 public partial class MainItemPage : ContentPage
 {
-	MainPageViewModel viewModel;
+	private readonly MainPageViewModel viewModel;
 	public MainItemPage(MainPageViewModel _viewModel)
 	{
-		try
+        InitializeComponent();
+        try
 		{
 			viewModel = _viewModel;
-            InitializeComponent();
-			BindingContext = viewModel;
+			this.BindingContext = viewModel;
 		}
 		catch (Exception ex)
 		{
 
-			Debug.WriteLine(ex.Message);
+			Debug.WriteLine($"Error setting binding content: {ex.Message}");
 		}
 	}
 

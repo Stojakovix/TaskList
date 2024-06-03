@@ -11,9 +11,7 @@
     <ContentPage.Resources>
         <services:BoolConvert x:Key="BoolConvert"/>
     </ContentPage.Resources>
-    <ContentPage.BindingContext>
-        <viewModel:MainPageViewModel />
-    </ContentPage.BindingContext>
+
 
     <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
         <Grid.RowDefinitions>
@@ -136,15 +134,13 @@
                         >
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
-                        <Grid BackgroundColor="LightYellow"
+                    <Grid BackgroundColor="LightYellow"
                               RowDefinitions="*"
                               ColumnDefinitions="*"
                               Padding="5,5,0,0">
-                            <Entry Text="{Binding Title}"   Grid.Row="0" Grid.Column="0"/>
-                            <Editor Text="{Binding NoteText}" Grid.Row="1"/>
-                        </Grid>
-                    </ViewCell>
+                        <Entry Text="{Binding Title}"   Grid.Row="0" Grid.Column="0" />
+                        <Editor Text="{Binding NoteText}" Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsExtended}"/>
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
